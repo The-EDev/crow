@@ -59,6 +59,11 @@ namespace crow
             f(boost::system::error_code());
         }
 
+        SSL* get_SSL()
+        {
+            return nullptr;
+        }
+
         tcp::socket socket_;
     };
 
@@ -112,6 +117,12 @@ namespace crow
                         f(ec);
                     });
         }
+
+        SSL* get_SSL()
+        {
+            return socket().native_handle();
+        }
+
 
         std::unique_ptr<boost::asio::ssl::stream<tcp::socket>> ssl_socket_;
     };

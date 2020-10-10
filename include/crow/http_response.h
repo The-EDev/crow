@@ -12,6 +12,7 @@
 #if !defined(_WIN32)
 #include <sys/stat.h>
 #include <sys/sendfile.h>
+#include <openssl/ssl.h>
 #endif
 
 namespace crow
@@ -169,7 +170,16 @@ namespace crow
             {
                 ssize_t bytes_sent = 0 ;
                 size_t total_bytes_sent = 0;
-                sendfile(adaptor->raw_socket().native_handle(), fd_, &start_, file_info.statbuf.st_size - start_);
+                if(adaptor->get_SSL() == nullptr)
+                {
+                    sendfile(adaptor->raw_socket().native_handle(), fd_, &start_, file_info.statbuf.st_size - start_);
+                }
+                else
+                {
+                    CROW_LOG_DEBUG << "it's using ssl sendfile";
+                    CROW_LOG_DEBUG << "Kernel TLS status = " << BIO_get_ktls_send();
+                    SSL_sendfile(adaptor->get_SSL(), fd_, start_, file_info.statbuf.st_size - start_, 0);
+                }
             }
 
         }
