@@ -12,31 +12,40 @@
 #include "crow/socket_adaptors.h"
 #include "crow/logging.h"
 #include "crow/mime_types.h"
-#if !defined(_WIN32)
 #include <sys/stat.h>
-#endif
+
 
 namespace crow
 {
+
+    struct returnable
+    {
+        virtual const std::string dump() = 0;
+        virtual const std::string content_type() = 0;
+    };
+
     template <typename Adaptor, typename Handler, typename ... Middlewares>
     class Connection;
+
+    /// HTTP response
     struct response
     {
         template <typename Adaptor, typename Handler, typename ... Middlewares>
         friend class crow::Connection;
 
-        int code{200};
-        std::string body;
-        json::wvalue json_value;
+        int code{200}; ///< The Status code for the response.
+        std::string body; ///< The actual payload containing the response data.
+        json::wvalue json_value; ///< if the response body is JSON, this would be it.
+        ci_map headers; ///< HTTP headers.
 
-        // `headers' stores HTTP headers.
-        ci_map headers;
-
+        /// Set the value of an existing header in the response.
         void set_header(std::string key, std::string value)
         {
             headers.erase(key);
             headers.emplace(std::move(key), std::move(value));
         }
+
+        /// Add a new header to the response.
         void add_header(std::string key, std::string value)
         {
             headers.emplace(std::move(key), std::move(value));
@@ -54,6 +63,14 @@ namespace crow
         response(json::wvalue&& json_value) : json_value(std::move(json_value))
         {
             json_mode();
+        }
+        response(returnable&& ret_item) : body(ret_item.dump())
+        {
+            set_header("Content-Type", ret_item.content_type());
+        }
+        response(returnable& ret_item) : body(ret_item.dump())
+        {
+            set_header("Content-Type", ret_item.content_type());
         }
         response(int code, std::string body) : code(code), body(std::move(body)) {}
         response(const json::wvalue& json_value) : body(json::dump(json_value))
@@ -82,6 +99,7 @@ namespace crow
             return *this;
         }
 
+        /// Check if the response has completed (whether response.end() has been called)
         bool is_completed() const noexcept
         {
             return completed_;
@@ -107,6 +125,7 @@ namespace crow
             body += body_part;
         }
 
+        /// Set the response completion flag and call the handler (to send the response).
         void end()
         {
             if (!completed_)
@@ -120,27 +139,34 @@ namespace crow
             }
         }
 
+        /// Same as end() except it adds a body part right before ending.
         void end(const std::string& body_part)
         {
             body += body_part;
             end();
         }
 
+        /// Check if the connection is still alive (usually by checking the socket status).
         bool is_alive()
         {
             return is_alive_helper_ && is_alive_helper_();
         }
- /* adding static file support here
-  * middlware must call res.set_static_file_info(filename)
-  * you must add route starting with /your/restricted/path/<string>
-  */
-#if !defined(_WIN32)
+
+        /// Check whether the response has a static file defined.
+        bool is_static_type()
+        {
+            return file_info.path.size();
+        }
+
+        /// This constains metadata (coming from the `stat` command) related to any static files associated with this response.
+
+        /// Either a static file or a string body can be returned as 1 response.
+        ///
         struct static_file_info{
             std::string path = "";
             struct stat statbuf;
             int statResult;
         };
-        static_file_info file_info;
 
         ///Return a static file as the response body
         void set_static_file_info(std::string path){
@@ -169,6 +195,7 @@ namespace crow
             }
         }
 
+        /// Stream a static file.
         template<typename Adaptor>
         void do_stream_file(Adaptor& adaptor)
         {
@@ -179,6 +206,7 @@ namespace crow
             }
         }
 
+        /// Stream the response body (send the body in chunks).
         template<typename Adaptor>
         void do_stream_body(Adaptor& adaptor)
         {
@@ -187,14 +215,14 @@ namespace crow
                 write_streamed_string(body, adaptor);
             }
         }
-#endif
-/* static file support end */
+
         private:
             bool completed_{};
             std::function<void()> complete_request_handler_;
             std::function<bool()> is_alive_helper_;
+            static_file_info file_info;
 
-            //In case of a JSON object, set the Content-Type header
+            /// In case of a JSON object, set the Content-Type header.
             void json_mode()
             {
                 set_header("Content-Type", "application/json");

@@ -31,11 +31,12 @@ namespace crow
         };
 
         ///The parsed multipart request/response
-        struct message
+        struct message : returnable
         {
             ci_map headers;
             std::string boundary; ///< The text boundary that separates different `parts`
             std::vector<part> parts; ///< The individual parts of the message
+            const std::string content_type() override {return "multiplart/form-data";}
 
             const std::string& get_header_value(const std::string& key) const
             {
@@ -43,12 +44,12 @@ namespace crow
             }
 
             ///Represent all parts as a string (**does not include message headers**)
-            const std::string dump()
+            const std::string dump() override
             {
                 std::stringstream str;
                 std::string delimiter = dd + boundary;
 
-                for (uint i=0 ; i<parts.size(); i++)
+                for (unsigned i=0 ; i<parts.size(); i++)
                 {
                     str << delimiter << crlf;
                     str << dump(i);
