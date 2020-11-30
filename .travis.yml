@@ -18,6 +18,7 @@ arch:
 
 env:
   global:
+    - secure: Ni2wBgSAouKnrwF50Jd1porQMMJtJbXRMVLF56LRIMIWTilAfR5D0094Ldgd9K05uR7NfHK9PnEHQmXBNwSpnPdeKGaOyl1XwSd+e2rClETiUVXwkiqt1r8z79cYZSCBWxir1G51XGJuCSSNt0qNAkCRBbRLK2omzrimHhtW5Vf2ElVHzaTFtsj411L+L6sJfxLn5WjNYURBBTwo5Xjbm5d0gwb1UkvwaVtG+YGGFUmMk3dlNRnXTkTJZD9K+aDNDgkdsrqug0YYf+LW+7T4Y3pdIUI24hCyqCRKtoswGdrtaop3vKvYq2xnCaCrQjrYQYFjvnsSp3kGU8TLIChEbqh7XUMLcQWDJeMYfjzmvp1RuC37WuNLLwC8m3tkbVwYwVcFS8LXlUmPogAsDees/1Y9msKClzPiLPOoDaHRxcdwZjrp7t92biFqpN7X3xuZoXfaPB++SCDbCv2yo7fo9ZktzDnJ+FrnJ3G4WnWxT+H6zgrRv8KEWqbFLU6cQqkxbjtb89r/CkXeRYij0oRO2RHOjFu5YsiClGRU9TbudCqPMfP4+wq6ElzDlHSGceceKJFBm3RsmPhRuz5LRo2+kKA9YC2NJ2o5q27ksU+IdJkSQbI+Hk7EfB6lXNKwv9UaP8zvyfM7OdQ5LNyZPgdRy8qtqP+bim13CJe9lQ5A7vk=
     - GH_REPO_NAME: crow
     - DOXYFILE: $TRAVIS_BUILD_DIR/Doxyfile
     - GH_REPO_REF: github.com/The-EDev/crow.git
@@ -60,7 +61,12 @@ before_deploy:
   - git tag Nightly-CD
 deploy:
   provider: releases
+  api_key:
+    secure: Ni2wBgSAouKnrwF50Jd1porQMMJtJbXRMVLF56LRIMIWTilAfR5D0094Ldgd9K05uR7NfHK9PnEHQmXBNwSpnPdeKGaOyl1XwSd+e2rClETiUVXwkiqt1r8z79cYZSCBWxir1G51XGJuCSSNt0qNAkCRBbRLK2omzrimHhtW5Vf2ElVHzaTFtsj411L+L6sJfxLn5WjNYURBBTwo5Xjbm5d0gwb1UkvwaVtG+YGGFUmMk3dlNRnXTkTJZD9K+aDNDgkdsrqug0YYf+LW+7T4Y3pdIUI24hCyqCRKtoswGdrtaop3vKvYq2xnCaCrQjrYQYFjvnsSp3kGU8TLIChEbqh7XUMLcQWDJeMYfjzmvp1RuC37WuNLLwC8m3tkbVwYwVcFS8LXlUmPogAsDees/1Y9msKClzPiLPOoDaHRxcdwZjrp7t92biFqpN7X3xuZoXfaPB++SCDbCv2yo7fo9ZktzDnJ+FrnJ3G4WnWxT+H6zgrRv8KEWqbFLU6cQqkxbjtb89r/CkXeRYij0oRO2RHOjFu5YsiClGRU9TbudCqPMfP4+wq6ElzDlHSGceceKJFBm3RsmPhRuz5LRo2+kKA9YC2NJ2o5q27ksU+IdJkSQbI+Hk7EfB6lXNKwv9UaP8zvyfM7OdQ5LNyZPgdRy8qtqP+bim13CJe9lQ5A7vk=
   file: "build/crow_all.h"
   skip_cleanup: true
   overwrite: true
   prerelease: true
+  on:
+    branch: master
+    condition: $TRAVIS_BUILD_DOCS = ON
