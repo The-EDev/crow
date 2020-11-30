@@ -57,7 +57,7 @@ after_success:
 before_deploy:
   - git config --local user.name "Travis CI"
   - git config --local user.email "travis@travis-ci.org"
-  - git tag -f -a Nightly-CD
+  - git tag -f -a Nightly-CD -m "new deploy on $(date +"%Y-%m-%d %T")"
 deploy:
   provider: releases
   api_key:
