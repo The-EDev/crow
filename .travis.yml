@@ -60,6 +60,7 @@ before_deploy:
   - git tag Nightly-CD
 deploy:
   provider: releases
-  api_key: $GH_REPO_KEY
   file: "build/crow_all.h"
   skip_cleanup: true
+  overwrite: true
+  prerelease: true
