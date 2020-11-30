@@ -58,8 +58,8 @@ before_deploy:
   - git config --local user.name "Travis CI"
   - git config --local user.email "travis@travis-ci.org"
   - git tag Nightly-CD
-  deploy:
-    provider: releases
-    api_key: $GH_REPO_KEY
-    file: "build/crow_all.h"
-    skip_cleanup: true
+deploy:
+  provider: releases
+  api_key: $GH_REPO_KEY
+  file: "build/crow_all.h"
+  skip_cleanup: true
