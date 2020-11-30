@@ -60,6 +60,7 @@ before_deploy:
   - git fetch --tags -f
   - git tag -d Nightly-CD
   - git tag -fa Nightly-CD -m "new deploy on $(date +"%Y-%m-%d %T")"
+  - git push origin --tags-f
 deploy:
   provider: releases
   api_key:
