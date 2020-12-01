@@ -53,14 +53,13 @@ after_success:
   - if [ "$PUSH_COVERAGE" == "ON" ]; then coveralls -i include --exclude-pattern .*/http_parser_merged.h --exclude-pattern .*/TinySHA1.hpp --gcov-options '\-lp'; fi
   - chmod +x scripts/generateDocumentationAndDeploy.sh
   - if [ "$TRAVIS_BUILD_DOCS" == "ON" ]; then ./scripts/generateDocumentationAndDeploy.sh; fi
-  
-before_deploy:
   - git config --local user.name "Travis CI"
   - git config --local user.email "travis@travis-ci.org"
   - git fetch --tags -f
   - git tag -d Nightly-CD
   - git tag -fa Nightly-CD -m "new deploy on $(date +"%Y-%m-%d %T")"
   - git push origin --tags -f
+  
 deploy:
   provider: releases
   api_key:
