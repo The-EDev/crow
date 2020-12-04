@@ -59,8 +59,10 @@ before_deploy:
   - git config --local user.email "travis@travis-ci.org"
   - git fetch --tags -f
   - git tag -d Nightly-CD
-  - git tag -fa Nightly-CD -m "new deploy on $(date +"%Y-%m-%d %T")"
+  - git push --delete https://${GH_REPO_TOKEN}@${GH_REPO_REF} Nightly-CD
+  - git tag  Nightly-CD -m "new deploy on $(date +"%Y-%m-%d %T")"
   - git push https://${GH_REPO_TOKEN}@${GH_REPO_REF} --tags -f
+
 deploy:
   provider: releases
   api_key:
@@ -72,3 +74,4 @@ deploy:
   on:
     branch: master
     condition: $TRAVIS_BUILD_DOCS = ON
+
